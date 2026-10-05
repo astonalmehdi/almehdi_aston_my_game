@@ -19,7 +19,7 @@ from utils import *
 # Blueprint for the whole game
 class Game:
     def __init__(self):
-        # Initializes the attributes needed for the game. Screen and clock
+        # Initializes the attributes needed for the game, screen and clock
         pg.init()
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
