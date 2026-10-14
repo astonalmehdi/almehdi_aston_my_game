@@ -51,6 +51,11 @@ class Game:
                     Wall(self, col, row)
                 if tile == "P":
                     self.player = Player(self, col, row)
+        
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles):
+                if tile == "M":
+                    Mob(self, self.player, col, row)
 
     def run(self):
         # Keeps the game running
