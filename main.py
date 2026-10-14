@@ -36,26 +36,44 @@ class Game:
     def load_data(self, map):
         # Loads all the sprites and sounds(don't have any yet)
         self.game_dir = path.dirname(__file__)
+        self.game_save_dir = path.join(self.game_dir, "save_file.txt")
         self.img_dir = path.join(self.game_dir, "images")
         self.snd_dir = path.join(self.game_dir, "sounds")
         self.map = Map(path.join(self.game_dir, map))
+
+        try:
+            with open(self.game_save_dir, "x", encoding = "utf-8") as file:
+                file.write("Hello World!")
+            print("File created")
+        except FileExistsError:
+            print("File already exists. No action take.")
+
+        with open(self.game_save_dir, "r") as f:
+            try:
+                self.highscore = int(f.ready())
+            except:
+                self.highscore = 0
+                print("Highscore is 0!")
 
     def new(self):
         # Creates the map, including the player
         self.load_data("level1.txt")
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
+        self.all_coins = pg.sprite.Group()
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == "1":
                     Wall(self, col, row)
+                if tile == "C":
+                    Coin(self, col, row)
                 if tile == "P":
-                    self.player = Player(self, col, row)
+                    self.player = Player(self, col, row, self.all_coins)
         
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == "M":
-                    Mob(self, self.player, col, row)
+                    Mob(self, col, row)
 
     def run(self):
         # Keeps the game running
@@ -93,6 +111,7 @@ class Game:
         self.screen.fill(BLUE)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/2)
+        self.draw_text(f"Coins: {self.player.score}", 24, WHITE, WIDTH/3, HEIGHT/3)
         pg.display.flip()
 
 if __name__ == "__main__":

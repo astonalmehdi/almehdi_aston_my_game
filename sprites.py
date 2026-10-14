@@ -33,10 +33,12 @@ def collide_with_walls(sprite, group, dir):
             sprite.hit_rect.centery = sprite.pos.y
 
 class Player(Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self, game, x, y, coins):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
+        self.coins = coins
+        self.score = 0
         # this provides us with raster images for use in animation or otherwise
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -97,7 +99,13 @@ class Player(Sprite):
                 self.rect.bottom = bottom
                 self.image.set_colorkey(BLACK)
 
+    def check_coins(self):
+        hits = pg.sprite.spritecollide(self, self.coins, True)
+        self.score += len(hits)
+
+
     def update(self):
+        self.check_coins()
         self.animate()
         self.get_keys()
         self.rect.center = self.pos
@@ -110,11 +118,10 @@ class Player(Sprite):
 
 # copied player class
 class Mob(Sprite):
-    def __init__(self, game, player, x, y):
+    def __init__(self, game, x, y):
         self.groups = game.all_sprites
         Sprite.__init__(self, self.groups)
         self.game = game
-        self.player = player
         # this provides us with raster images for use in animation or otherwise
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -140,7 +147,7 @@ class Mob(Sprite):
 
     def follow(self):
         # figures out what direction they need to go to follow the player
-        direction = self.player.pos - self.pos
+        direction = self.game.player.pos - self.pos
         self.vel = direction
 
     def load_images(self):
@@ -186,6 +193,25 @@ class Wall(Sprite):
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vx, self.vy = 0, 0
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+        print("wall instance created")
+
+# Copied from wall class
+class Coin(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_coins
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        pg.draw.circle(self.image, YELLOW, (TILESIZE/2, TILESIZE/2), TILESIZE/2)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
