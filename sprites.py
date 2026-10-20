@@ -39,6 +39,7 @@ class Player(Sprite):
         self.game = game
         self.coins = coins
         self.score = 0
+        self.coin_pickup = pg.mixer.Sound("sounds/coin.wav")
         # this provides us with raster images for use in animation or otherwise
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
         self.image = pg.Surface((TILESIZE, TILESIZE))
@@ -102,7 +103,8 @@ class Player(Sprite):
     def check_coins(self):
         hits = pg.sprite.spritecollide(self, self.coins, True)
         self.score += len(hits)
-
+        if hits:
+            self.coin_pickup.play()
 
     def update(self):
         self.check_coins()
@@ -130,6 +132,7 @@ class Mob(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.speed = 100
         self.vel = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
         self.hit_rect = MOB_HIT_RECT
@@ -145,10 +148,13 @@ class Mob(Sprite):
     def jump(self):
         pass
 
-    def follow(self):
+    def follow(self, obj):
         # figures out what direction they need to go to follow the player
-        direction = self.game.player.pos - self.pos
+        direction = vec(obj.rect.centerx - self.rect.centerx, obj.rect.centery - self.rect.centery)
+        if direction.length() > 0:
+            direction = direction.normalize()
         self.vel = direction
+        print(self.vel)
 
     def load_images(self):
         self.idle_frames = [self.spritesheet.get_image(64,0, TILESIZE,TILESIZE), self.spritesheet.get_image(96,0, TILESIZE,TILESIZE)]
@@ -177,9 +183,8 @@ class Mob(Sprite):
 
     def update(self):
         self.animate()
-        self.follow()
-        self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
+        self.follow(self.game.player)
+        self.pos += self.vel * self.speed * self.game.dt
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, "x")
         self.hit_rect.centery = self.pos.y

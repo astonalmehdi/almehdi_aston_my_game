@@ -36,7 +36,7 @@ class Game:
     def load_data(self, map):
         # Loads all the sprites and sounds(don't have any yet)
         self.game_dir = path.dirname(__file__)
-        self.game_save_dir = path.join(self.game_dir, "save_file.txt")
+        self.game_save_dir = path.join(self.game_dir, "highscore.txt")
         self.img_dir = path.join(self.game_dir, "images")
         self.snd_dir = path.join(self.game_dir, "sounds")
         self.map = Map(path.join(self.game_dir, map))
@@ -87,11 +87,11 @@ class Game:
         # Checks if we want to exit the game
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                with open(path.join(self.game_dir, self.game_save_dir), "w") as f:
+                    f.write(str(self.player.score))
                 if self.playing:
                     self.playing = False
                 self.running = False
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                self.player.pos = event.pos
 
     def update(self):
         # This block of code handles processing of changes based on input
