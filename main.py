@@ -50,7 +50,7 @@ class Game:
 
         with open(self.game_save_dir, "r") as f:
             try:
-                self.highscore = int(f.ready())
+                self.highscore = int(f.read())
             except:
                 self.highscore = 0
                 print("Highscore is 0!")
@@ -75,6 +75,9 @@ class Game:
                 if tile == "M":
                     Mob(self, col, row)
 
+        pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
+        pg.mixer.music.play(loops = -1)
+
     def run(self):
         # Keeps the game running
         while self.running:
@@ -87,8 +90,9 @@ class Game:
         # Checks if we want to exit the game
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                with open(path.join(self.game_dir, self.game_save_dir), "w") as f:
-                    f.write(str(self.player.score))
+                if self.player.score > self.highscore:
+                    with open(path.join(self.game_dir, self.game_save_dir), "w") as f:
+                        f.write(str(self.player.score))
                 if self.playing:
                     self.playing = False
                 self.running = False
@@ -111,7 +115,8 @@ class Game:
         self.screen.fill(BLUE)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/2)
-        self.draw_text(f"Coins: {self.player.score}", 24, WHITE, WIDTH/3, HEIGHT/3)
+        self.draw_text(f"Coins: {self.player.score}", 24, WHITE, WIDTH/2, HEIGHT/3)
+        self.draw_text(f"Highscore: {self.highscore}", 24, WHITE, WIDTH/2, HEIGHT/4)
         pg.display.flip()
 
 if __name__ == "__main__":
