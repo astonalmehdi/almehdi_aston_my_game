@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 from settings import *
 from utils import *
 from os import path
+from random import uniform, choice
 
 vec = pg.math.Vector2
 
@@ -105,6 +106,8 @@ class Player(Sprite):
         self.score += len(hits)
         if hits:
             self.coin_pickup.play()
+            for i in range(0, 5):
+                Particle(self.game, self.rect.x, self.rect.y)
 
     def update(self):
         self.check_coins()
@@ -190,6 +193,33 @@ class Mob(Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, "y")
         self.rect.center = self.hit_rect.center
+
+# Copied from wall
+class Particle(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_particles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/8, TILESIZE/8))
+        self.image.fill(RED)
+        self.rect = self.image.get_rect()
+        self.vel = vec(uniform(-1, 1), uniform(-1, 1)) * 15
+        self.pos = vec(x, y)
+        self.rect.center = self.pos
+        self.countdown = Cooldown()
+        self.countdown.event_time = floor(pg.time.get_ticks()/1000)
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        print("Particle instance created")
+
+    def update(self):
+        self.countdown.ticking()
+        self.image.fill(choice([RED, GREEN, BLUE, YELLOW]))
+        self.pos += self.vel
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+        if self.countdown.delta > 1:
+            self.kill()
 
 class Wall(Sprite):
     def __init__(self, game, x, y):
