@@ -45,11 +45,13 @@ class Player(Sprite):
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image = self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
-        self.image.set_colorkey(BLACK)
+        # self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        # player motion attributes
         self.vel = vec(0, 0)
+        self.acc = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
         self.hit_rect = PLAYER_HIT_RECT
         # animation stuff
@@ -62,23 +64,29 @@ class Player(Sprite):
         print("player instance created")
 
     def get_keys(self):
-        self.vel = vec(0, 0)
+        # self.vel = vec(0, 0)
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
-            self.vel.x = -PLAYER_SPEED
+            # self.vel.x = -PLAYER_SPEED
+            self.acc.x = -5
         if keys[pg.K_d]:
-            self.vel.x = PLAYER_SPEED
+            # self.vel.x = PLAYER_SPEED
+            self.acc.x = 5
         if keys[pg.K_w]:
-            self.vel.y = -PLAYER_SPEED
+            # self.vel.y = -PLAYER_SPEED
+            self.acc.y = -5
         if keys[pg.K_s]:
-            self.vel.y = PLAYER_SPEED
+            # self.vel.y = PLAYER_SPEED
+            self.acc.y = 5
 
     def jump(self):
         pass
 
     def load_images(self):
-        self.idle_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
-        self.moving_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
+        # self.idle_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
+        # self.moving_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
+        self.idle_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
+        self.moving_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
 
     def animate(self):
         now = pg.time.get_ticks()
@@ -90,7 +98,7 @@ class Player(Sprite):
                 self.image = self.idle_frames[self.current_frame]
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
-                self.image.set_colorkey(BLACK)
+                # self.image.set_colorkey(BLACK)
         elif self.moving:
             if now - self.last_update > 350:
                 self.last_update = now
@@ -110,11 +118,16 @@ class Player(Sprite):
                 Particle(self.game, self.rect.x, self.rect.y)
 
     def update(self):
+        self.acc = vec(0, 0)
         self.check_coins()
         self.animate()
         self.get_keys()
+        self.acc.x += self.vel.x * PLAYER_FRIC
+        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.vel += self.acc
         self.rect.center = self.pos
-        self.pos += self.vel * self.game.dt
+        # self.pos += self.vel * self.game.dt
+        self.pos += self.vel + 0.5 * self.acc
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, "x")
         self.hit_rect.centery = self.pos.y

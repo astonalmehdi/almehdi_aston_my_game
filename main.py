@@ -64,17 +64,17 @@ class Game:
         self.all_particles = pg.sprite.Group()
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
+                if tile == "P":
+                    self.player = Player(self, col, row, self.all_coins)
+                if tile == "M":
+                    Mob(self, col, row)
+        
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles):
                 if tile == "1":
                     Wall(self, col, row)
                 if tile == "C":
                     Coin(self, col, row)
-                if tile == "P":
-                    self.player = Player(self, col, row, self.all_coins)
-        
-        for row, tiles in enumerate(self.map.data):
-            for col, tile in enumerate(tiles):
-                if tile == "M":
-                    Mob(self, col, row)
 
         pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
         pg.mixer.music.play(loops = -1)
