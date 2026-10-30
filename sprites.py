@@ -60,6 +60,7 @@ class Player(Sprite):
         # accounting for the states of the player
         self.jumping = False
         self.moving = False
+        self.player_fric = -0.01
         self.load_images()
         print("player instance created")
 
@@ -114,20 +115,19 @@ class Player(Sprite):
         self.score += len(hits)
         if hits:
             self.coin_pickup.play()
-            for i in range(0, 5):
+            for i in range(0, 10):
                 Particle(self.game, self.rect.x, self.rect.y)
 
     def update(self):
-        self.acc = vec(0, 0)
-        self.check_coins()
         self.animate()
         self.get_keys()
-        self.acc.x += self.vel.x * PLAYER_FRIC
-        self.acc.y += self.vel.y * PLAYER_FRIC
+        self.acc.x += self.vel.x * self.player_fric
+        self.acc.y += self.vel.y * self.player_fric
         self.vel += self.acc
         self.rect.center = self.pos
         # self.pos += self.vel * self.game.dt
-        self.pos += self.vel + 0.5 * self.acc
+        self.pos += self.vel * self.game.dt + 0.5 * self.acc
+        self.check_coins()
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, "x")
         self.hit_rect.centery = self.pos.y
@@ -170,7 +170,6 @@ class Mob(Sprite):
         if direction.length() > 0:
             direction = direction.normalize()
         self.vel = direction
-        print(self.vel)
 
     def load_images(self):
         self.idle_frames = [self.spritesheet.get_image(64,0, TILESIZE,TILESIZE), self.spritesheet.get_image(96,0, TILESIZE,TILESIZE)]
@@ -241,6 +240,24 @@ class Wall(Sprite):
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
         self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vx, self.vy = 0, 0
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.rect.x = self.x
+        self.rect.y = self.y
+        print("wall instance created")
+
+# Copied from wall class
+class Surface(Sprite):
+    def __init__(self, game, x, y, color):
+        self.groups = game.all_sprites, game.all_ice
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE, TILESIZE))
+        self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

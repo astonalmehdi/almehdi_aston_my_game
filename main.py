@@ -62,12 +62,7 @@ class Game:
         self.all_walls = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
-        for row, tiles in enumerate(self.map.data):
-            for col, tile in enumerate(tiles):
-                if tile == "P":
-                    self.player = Player(self, col, row, self.all_coins)
-                if tile == "M":
-                    Mob(self, col, row)
+        self.all_ice = pg.sprite.Group()
         
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
@@ -75,6 +70,16 @@ class Game:
                     Wall(self, col, row)
                 if tile == "C":
                     Coin(self, col, row)
+                if tile == "I":
+                    i = Surface(self, col, row, CYAN)
+                    i.variant = 'ice'
+
+        for row, tiles in enumerate(self.map.data):
+            for col, tile in enumerate(tiles):
+                if tile == "P":
+                    self.player = Player(self, col, row, self.all_coins)
+                if tile == "M":
+                    Mob(self, col, row)
 
         pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
         pg.mixer.music.play(loops = -1)
