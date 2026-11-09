@@ -9,10 +9,10 @@ Process - input processed (direction of control, magnitude)
 Output - draw new frames, sound, haptics
 (Store)
 
-GOALS:
-RULES:
-FEEDBACK:
-FREEDOM:
+GOALS: Defeat all the enemies and get to the endpoint
+RULES: Don't die or run out of time
+FEEDBACK: Damage, sound, enemies
+FREEDOM: Open world
 '''
 
 import pygame as pg
@@ -41,6 +41,7 @@ class Game:
         self.snd_dir = path.join(self.game_dir, "sounds")
         self.map = Map(path.join(self.game_dir, map))
 
+        # If the file doesn't exist then it creates it other wise nothing happens
         try:
             with open(self.game_save_dir, "x", encoding = "utf-8") as file:
                 file.write("Hello World!")
@@ -48,6 +49,7 @@ class Game:
         except FileExistsError:
             print("File already exists. No action take.")
 
+        # Sees if there is a highscore, if not then it sets it to 0
         with open(self.game_save_dir, "r") as f:
             try:
                 self.highscore = int(f.read())
@@ -56,13 +58,13 @@ class Game:
                 print("Highscore is 0!")
 
     def new(self):
-        # Creates the map, including the player
+        # Creates the map, including the player, and all of the groups
         self.load_data("level1.txt")
         self.all_sprites = pg.sprite.Group()
         self.all_walls = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
-        self.all_ice = pg.sprite.Group()
+        self.all_tiles = pg.sprite.Group()
         
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
@@ -81,6 +83,7 @@ class Game:
                 if tile == "M":
                     Mob(self, col, row)
 
+        # plays bg music
         pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
         pg.mixer.music.play(loops = -1)
 
