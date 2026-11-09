@@ -55,7 +55,7 @@ class Player(Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.pos = vec(x, y) * TILESIZE
-        self.player_fric = -0.1
+        self.player_fric = -1
         self.hit_rect = PLAYER_HIT_RECT
         # animation stuff
         self.current_frame = 0
@@ -124,16 +124,13 @@ class Player(Sprite):
         self.animate()
         self.acc = vec(0, 0)
         self.get_keys()
-        self.acc.x += self.vel.x * self.player_fric
-        self.acc.y += self.vel.y * self.player_fric
+        self.acc += self.vel * self.game.dt * self.player_fric
         self.vel += self.acc
-        self.rect.center = self.pos
-        # self.pos += self.vel * self.game.dt
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
         if abs(self.vel.y) < 0.1:
             self.vel.y = 0
-        self.pos += self.vel * self.game.dt + 0.5 * self.acc
+        self.pos += self.vel + 0.5 * self.acc
         
         tile_hits = pg.sprite.spritecollide(self, self.game.all_tiles, False)
         if tile_hits:
