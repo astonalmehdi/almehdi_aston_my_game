@@ -70,13 +70,13 @@ class Player(Sprite):
         # Checks if any keys are being pressed to move the player
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
-            self.acc.x = -PLAYER_ACC
+            self.vel.x = -PLAYER_SPEED
         if keys[pg.K_d]:
-            self.acc.x = PLAYER_ACC
+            self.vel.x = PLAYER_SPEED
         if keys[pg.K_w]:
-            self.acc.y = -PLAYER_ACC
+            self.vel.y = -PLAYER_SPEED
         if keys[pg.K_s]:
-            self.acc.y = PLAYER_ACC
+            self.vel.y = PLAYER_SPEED
 
     def jump(self):
         pass
@@ -122,28 +122,15 @@ class Player(Sprite):
 
     def update(self):
         self.animate()
-        self.acc = vec(0, 0)
         self.get_keys()
-        self.acc += self.vel * self.game.dt * self.player_fric
-        self.vel += self.acc
-        if abs(self.vel.x) < 0.1:
-            self.vel.x = 0
-        if abs(self.vel.y) < 0.1:
-            self.vel.y = 0
-        self.pos += self.vel + 0.5 * self.acc
-        
-        tile_hits = pg.sprite.spritecollide(self, self.game.all_tiles, False)
-        if tile_hits:
-            if tile_hits[0].variant == "ice":
-                self.player_fric = -0.01
-            else:
-                self.player_fric = -0.1
-        
+        self.pos += self.vel * self.game.dt
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
         self.check_coins()
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.all_walls, "x")
+        collide_with_walls(self, self.game.collision_sprites, "x")
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.all_walls, "y")
+        collide_with_walls(self, self.game.collision_sprites, "y")
         self.rect.center = self.hit_rect.center
 
 # copied player class
@@ -216,9 +203,9 @@ class Mob(Sprite):
         self.follow(self.game.player)
         self.pos += self.vel * self.speed * self.game.dt
         self.hit_rect.centerx = self.pos.x
-        collide_with_walls(self, self.game.all_walls, "x")
+        collide_with_walls(self, self.game.collision_sprites, "x")
         self.hit_rect.centery = self.pos.y
-        collide_with_walls(self, self.game.all_walls, "y")
+        collide_with_walls(self, self.game.collision_sprites, "y")
         self.rect.center = self.hit_rect.center
 
 # Copied from wall
@@ -255,22 +242,11 @@ class Particle(Sprite):
         if self.countdown.delta > 1:
             self.kill()
 
-class Wall(Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites, game.all_walls
-        Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image.fill(GREEN)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.vx, self.vy = 0, 0
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
-        self.rect.x = self.x
-        self.rect.y = self.y
-        print("wall instance created")
+class Tile(Sprite):
+    def __init__(self, pos, surf, groups):
+        Sprite.__init__(self, groups)
+        self.image = surf
+        self.rect = self.image.get_rect(center = pos)
 
 # Copied from wall class
 class Surface(Sprite):

@@ -20,6 +20,7 @@ from os import path
 from settings import *
 from sprites import *
 from utils import *
+from pytmx.util_pygame import load_pygame
 
 # Blueprint for the whole game
 class Game:
@@ -57,31 +58,45 @@ class Game:
                 self.highscore = 0
                 print("Highscore is 0!")
 
-    def new(self):
+    def setup(self):
         # Creates the map, including the player, and all of the groups
         self.load_data("level1.txt")
-        self.all_sprites = pg.sprite.Group()
-        self.all_walls = pg.sprite.Group()
+        self.all_sprites = AllSprites()
+        self.collision_sprites = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
         self.all_particles = pg.sprite.Group()
         self.all_tiles = pg.sprite.Group()
-        
-        for row, tiles in enumerate(self.map.data):
-            for col, tile in enumerate(tiles):
-                if tile == "1":
-                    Wall(self, col, row)
-                if tile == "C":
-                    Coin(self, col, row)
-                if tile == "I":
-                    i = Surface(self, col, row, CYAN)
-                    i.variant = 'ice'
 
-        for row, tiles in enumerate(self.map.data):
-            for col, tile in enumerate(tiles):
-                if tile == "P":
-                    self.player = Player(self, col, row, self.all_coins)
-                if tile == "M":
-                    Mob(self, col, row)
+        # Map
+        tmx_map = load_pygame("images/map.tmx")
+
+        # Collision Tiles
+        for x,y, surf in tmx_map.get_layer_by_name("Level").tiles():
+            Tile((x * 16, y * 16), surf, [self.all_sprites, self.collision_sprites])
+
+        # BG Tiles
+        for x,y, surf in tmx_map.get_layer_by_name("BG").tiles():
+                Tile((x * 16, y * 16), surf, self.all_sprites)
+
+        self.player = Player(self, 200, 200, self.all_coins)
+        
+        
+        # for row, tiles in enumerate(self.map.data):
+        #     for col, tile in enumerate(tiles):
+        #         if tile == "1":
+        #             Wall(self, col, row)
+        #         if tile == "C":
+        #             Coin(self, col, row)
+        #         if tile == "I":
+        #             i = Surface(self, col, row, CYAN)
+        #             i.variant = 'ice'
+
+        # for row, tiles in enumerate(self.map.data):
+        #     for col, tile in enumerate(tiles):
+        #         if tile == "P":
+        #             self.player = Player(self, col, row, self.all_coins)
+        #         if tile == "M":
+        #             Mob(self, col, row)
 
         # plays bg music
         pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
@@ -108,7 +123,7 @@ class Game:
 
     def update(self):
         # This block of code handles processing of changes based on input
-        self.all_sprites.update()
+        self.all_sprites.custom_draw()
 
     def draw_text(self, text, size, color, x, y):
         # Draw text on screen anywhere
@@ -121,7 +136,6 @@ class Game:
     
     def draw(self):
         # Draws all the sprites
-        self.screen.fill(BLUE)
         self.all_sprites.draw(self.screen)
         self.draw_text("Frames per second: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text(f"Coins: {self.player.score}", 24, WHITE, WIDTH/2, HEIGHT/3)
@@ -132,7 +146,7 @@ if __name__ == "__main__":
     g = Game()
 
 while g.running:
-    g.new()
+    g.setup()
     g.run()
 
 pg.quit()

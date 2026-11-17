@@ -1,6 +1,24 @@
 import pygame as pg
 from settings import *
 from math import floor
+from pygame.math import Vector2 as vector
+
+class AllSprites(pg.sprite.Group):
+    def __init__(self):
+        pg.sprite.Group().__init__(self)
+        self.display_surface = pg.display.get_surface()
+        self.offset = vector()
+
+    def custom_draw(self, player):
+        # Offset Vector
+        self.offset.x = player.rect.centerx - WIDTH/2
+        self.offset.y = player.rect.centery - HEIGHT/2
+
+        # Blit all sprites
+        for sprite in self.sprites():
+            offset_rect = sprite.image.get_rect(center = sprite.rect.center)
+            offset_rect.center -= self.offset
+            self.display_surface.blit(sprite.image, offset_rect)
 
 # Makes a map
 class Map:
