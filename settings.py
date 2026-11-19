@@ -3,7 +3,7 @@ from math import floor
 
 WIDTH = 1024
 HEIGHT = 768
-TILESIZE = 32
+TILESIZE = 16
 FPS = 30
 
 # COLORS
@@ -16,6 +16,6 @@ YELLOW = (255, 255, 0)
 CYAN = (0, 255, 255)
 
 # Player Settings
-PLAYER_SPEED = 50
+PLAYER_SPEED = 80
 PLAYER_HIT_RECT = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)
 MOB_HIT_RECT = pg.Rect(0, 0, TILESIZE-5, TILESIZE-5)

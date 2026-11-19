@@ -5,7 +5,7 @@ from pygame.math import Vector2 as vector
 
 class AllSprites(pg.sprite.Group):
     def __init__(self):
-        pg.sprite.Group().__init__(self)
+        pg.sprite.Group.__init__(self)
         self.display_surface = pg.display.get_surface()
         self.offset = vector()
 

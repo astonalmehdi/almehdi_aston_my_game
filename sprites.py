@@ -45,8 +45,9 @@ class Player(Sprite):
         self.coin_pickup = pg.mixer.Sound("sounds/coin.wav")
         # this provides us with raster images for use in animation or otherwise
         self.spritesheet = Spritesheet(path.join(self.game.img_dir, "sprite_sheet.png"))
-        self.image = pg.Surface((TILESIZE, TILESIZE))
-        self.image = self.spritesheet.get_image(0, 0, TILESIZE, TILESIZE)
+        self.image = pg.Surface((16,16))
+        self.image.fill(RED)
+        # self.image = self.spritesheet.get_image(0, 0, 16, 16)
         # self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -54,9 +55,10 @@ class Player(Sprite):
         # player motion attributes
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-        self.pos = vec(x, y) * TILESIZE
+        self.pos = vec(x, y)
         self.player_fric = -1
-        self.hit_rect = PLAYER_HIT_RECT
+        self.hit_rect = PLAYER_HIT_RECT.copy()
+        self.hit_rect.center = self.pos
         # animation stuff
         self.current_frame = 0
         self.last_update = 0
@@ -67,6 +69,7 @@ class Player(Sprite):
         print("player instance created")
 
     def get_keys(self):
+        self.vel = vec(0, 0)
         # Checks if any keys are being pressed to move the player
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
@@ -77,6 +80,7 @@ class Player(Sprite):
             self.vel.y = -PLAYER_SPEED
         if keys[pg.K_s]:
             self.vel.y = PLAYER_SPEED
+        
 
     def jump(self):
         pass
@@ -85,8 +89,9 @@ class Player(Sprite):
         # Loads sprites for player
         # self.idle_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
         # self.moving_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
-        self.idle_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
-        self.moving_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
+        # self.idle_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
+        # self.moving_frames = [pg.image.load(path.join(self.game.img_dir, "tarun venkat.jpg"))]
+        pass
 
     def animate(self):
         # If their are multiple sprites then it will go through them
@@ -121,7 +126,7 @@ class Player(Sprite):
                 Particle(self.game, self.rect.x, self.rect.y)
 
     def update(self):
-        self.animate()
+        # self.animate()
         self.get_keys()
         self.pos += self.vel * self.game.dt
         self.rect.x = self.pos.x

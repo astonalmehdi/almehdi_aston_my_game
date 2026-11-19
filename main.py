@@ -78,25 +78,11 @@ class Game:
         for x,y, surf in tmx_map.get_layer_by_name("BG").tiles():
                 Tile((x * 16, y * 16), surf, self.all_sprites)
 
-        self.player = Player(self, 200, 200, self.all_coins)
-        
-        
-        # for row, tiles in enumerate(self.map.data):
-        #     for col, tile in enumerate(tiles):
-        #         if tile == "1":
-        #             Wall(self, col, row)
-        #         if tile == "C":
-        #             Coin(self, col, row)
-        #         if tile == "I":
-        #             i = Surface(self, col, row, CYAN)
-        #             i.variant = 'ice'
+        # Props
+        for x,y, surf in tmx_map.get_layer_by_name("Props").tiles():
+            Tile((x * 16, y * 16), surf, self.all_sprites)
 
-        # for row, tiles in enumerate(self.map.data):
-        #     for col, tile in enumerate(tiles):
-        #         if tile == "P":
-        #             self.player = Player(self, col, row, self.all_coins)
-        #         if tile == "M":
-        #             Mob(self, col, row)
+        self.player = Player(self, 800, 800, self.all_coins)
 
         # plays bg music
         pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
@@ -123,7 +109,7 @@ class Game:
 
     def update(self):
         # This block of code handles processing of changes based on input
-        self.all_sprites.custom_draw()
+        self.all_sprites.update()
 
     def draw_text(self, text, size, color, x, y):
         # Draw text on screen anywhere
@@ -136,7 +122,7 @@ class Game:
     
     def draw(self):
         # Draws all the sprites
-        self.all_sprites.draw(self.screen)
+        self.all_sprites.custom_draw(self.player)
         self.draw_text("Frames per second: " + str(floor(1/self.dt)), 24, WHITE, WIDTH/2, HEIGHT/2)
         self.draw_text(f"Coins: {self.player.score}", 24, WHITE, WIDTH/2, HEIGHT/3)
         self.draw_text(f"Highscore: {self.highscore}", 24, WHITE, WIDTH/2, HEIGHT/4)
